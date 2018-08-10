@@ -58,7 +58,6 @@ namespace Maverick.DataAccess.Repository
             }
             _disposed = true;
             GC.SuppressFinalize(this);
-
         }
 
         public IRepository<TEntity> Repository<TEntity>() where TEntity : BaseModel

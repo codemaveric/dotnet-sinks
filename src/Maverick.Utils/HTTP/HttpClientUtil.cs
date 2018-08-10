@@ -28,6 +28,23 @@ namespace Maverick.Utils.HTTP
                 return default(T);
             }
         }
+
+        public async Task<HttpResponseMessage> GetJSONAsync(string path, object queryParams = null, object headers = null, object cookies = null)
+        {
+            try
+            {
+                return await new Url(path)
+                    .SetQueryParams(queryParams ?? new { })
+                    .WithCookies(cookies ?? new { })
+                    .WithTimeout(Configs.REST_REQUEST_TIMEOUT)
+                    .WithHeaders(headers ?? new { })
+                    .GetAsync();
+            }
+            catch (TaskCanceledException)
+            {
+                return default(HttpResponseMessage);
+            }
+        }
         public async Task<string> GetString(string path, object queryParams = null, object headers = null,
             object cookies = null)
         {
@@ -118,8 +135,7 @@ namespace Maverick.Utils.HTTP
                 return default(HttpResponseMessage);
             }
         }
-
-
+        
         public async Task<String> UploadByteArrayAsync(string path, byte[] imageBytes, byte[] secondaryImageBytes, string token, ICollection<KeyValuePair<String, String>> payload = null)
         {
             try
@@ -171,22 +187,22 @@ namespace Maverick.Utils.HTTP
                 return default(T);
             }
         }
-        public async Task PostUrlEncodedAsync(string path, object payload = null, object headers = null,
+        public async Task<HttpResponseMessage> PostUrlEncodedAsync(string path, object payload = null, object headers = null,
                                                   object cookies = null)
         {
             try
             {
-                await new Url(path).WithCookies(cookies ?? new { }).WithTimeout(Configs.REST_REQUEST_TIMEOUT)
+                return await new Url(path).WithCookies(cookies ?? new { }).WithTimeout(Configs.REST_REQUEST_TIMEOUT)
                                   .WithHeaders(headers ?? new { })
                                    .PostUrlEncodedAsync(payload ?? new object());
             }
             catch (TaskCanceledException)
             {
-
+                return default(HttpResponseMessage);
             }
             catch (IOException)
             {
-
+                return default(HttpResponseMessage);
             }
         }
         public async Task<T> PutJSONAsync<T>(string path, object payload = null, object headers = null,
@@ -222,6 +238,25 @@ namespace Maverick.Utils.HTTP
 
             }
         }
+        public async Task<HttpResponseMessage> DeleteJsonAsync(string path, object payload = null, object headers = null,
+                                                         object cookies = null)
+        {
+            try
+            {
+                return await new Url(path).WithCookies(cookies ?? new { }).WithTimeout(Configs.REST_REQUEST_TIMEOUT)
+                                  .WithHeaders(headers ?? new { })
+                                   .SendJsonAsync(HttpMethod.Delete, payload ?? new object());
+            }
+            catch (TaskCanceledException)
+            {
+                return default(HttpResponseMessage);
+            }
+            catch (IOException)
+            {
+                return default(HttpResponseMessage);
+            }
+        }
+
         public async Task<T> DeleteAsync<T>(string path,
                                object queryParams = null, object headers = null,
                               object cookies = null)
@@ -243,6 +278,7 @@ namespace Maverick.Utils.HTTP
                 return default(T);
             }
         }
+
         public async Task DeleteAsync(string path,
                                object queryParams = null, object headers = null,
                               object cookies = null)
@@ -285,6 +321,5 @@ namespace Maverick.Utils.HTTP
                 return default(byte[]);
             }
         }
-
     }
 }

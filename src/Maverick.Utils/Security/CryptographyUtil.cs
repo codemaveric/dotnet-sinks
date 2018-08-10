@@ -17,7 +17,7 @@ namespace Maverick.Utils.Security
             if (iv == null || iv.Length <= 0)
                 throw new ArgumentNullException(nameof(iv));
             string encryptedText = string.Empty;
-            using (AesManaged aes = new AesManaged())
+            using (RijndaelManaged aes = new RijndaelManaged())
             {
                 var encryptor = aes.CreateEncryptor(key, iv);
                 using (MemoryStream ms = new MemoryStream())
@@ -28,7 +28,11 @@ namespace Maverick.Utils.Security
                         {
                             sw.Write(plaintext);
                         }
-                        encryptedText = Encoding.UTF8.GetString(ms.ToArray());
+                        //encryptedText = Convert.ToBase64String(ms.ToArray());
+                        foreach (var item in ms.ToArray())
+                        {
+                            encryptedText += item.ToString("x2");
+                        }
                     }
                 }
             }
@@ -43,11 +47,18 @@ namespace Maverick.Utils.Security
                 throw new ArgumentNullException(nameof(key));
             if (iv == null || iv.Length <= 0)
                 throw new ArgumentNullException(nameof(iv));
+
+            var fullCipher = Encoding.UTF8.GetBytes(encryptedText);
+            var cipher = new byte[fullCipher.Length - iv.Length];
+
+            Buffer.BlockCopy(fullCipher, 0, iv, 0, iv.Length);
+            Buffer.BlockCopy(fullCipher, iv.Length, cipher, 0, fullCipher.Length - iv.Length);
+
             string plaintText = string.Empty;
-            using (AesManaged aes = new AesManaged())
+            using (RijndaelManaged aes = new RijndaelManaged())
             {
                 var decryptor = aes.CreateDecryptor(key, iv);
-                using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(encryptedText)))
+                using (MemoryStream ms = new MemoryStream(cipher))
                 {
                     using (CryptoStream cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
                     {

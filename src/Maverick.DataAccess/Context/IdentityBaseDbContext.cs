@@ -1,21 +1,21 @@
-﻿using System;
+﻿using Maverick.DataAccess.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace Maverick.DataAccess.Context
 {
-    public class BaseDbContext : DbContext, IEntitiesContext
+    public class IdentityBaseDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, int>, IEntitiesContext
     {
-        
         private DbTransaction _transaction;
 
-        public BaseDbContext(DbContextOptions options): base(options)
+        public IdentityBaseDbContext(DbContextOptions options) : base(options)
         {
             // this.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
@@ -57,7 +57,7 @@ namespace Maverick.DataAccess.Context
         {
             _transaction.Rollback();
         }
-        
+
         public new DbSet<TEntity> Set<TEntity>() where TEntity : class
             => base.Set<TEntity>();
 
